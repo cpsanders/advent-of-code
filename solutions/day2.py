@@ -4,18 +4,17 @@ import numpy as np
 import polars as pl
 from numpy.typing import NDArray
 
-if __name__ == "__main__":
-    # day 2.1
-    path = Path("inputs/day2.txt")
+
+def is_safe(nums: list[int]) -> bool:
+    nums = np.array(nums)
+    diff = np.diff(nums)
+    in_range = np.all(np.abs(diff) >= 1) and np.all(np.abs(diff) <= 3)
+    consistent_sign = np.all(diff < 0) or np.all(diff > 0)
+    return bool(in_range and consistent_sign)
+
+
+def part1(path: Path) -> None:
     lines = path.read_text().splitlines()
-
-    def is_safe(nums: list[int]) -> bool:
-        nums = np.array(nums)
-        diff = np.diff(nums)
-        in_range = np.all(np.abs(diff) >= 1) and np.all(np.abs(diff) <= 3)
-        consistent_sign = np.all(diff < 0) or np.all(diff > 0)
-        return bool(in_range and consistent_sign)
-
     num_safe = 0
     for line in lines:
         report = list(map(int, line.split()))
@@ -25,9 +24,10 @@ if __name__ == "__main__":
 
     print(f"day 2.1 solution: {num_safe}")
 
-    # day 2.1 (polars)
-    MAX_COLUMNS = 8
-    schema = {f"col{i}": pl.Int64 for i in range(MAX_COLUMNS)}
+
+def part1_polars(path: Path) -> None:
+    max_columns = 8
+    schema = {f"col{i}": pl.Int64 for i in range(max_columns)}
     df = pl.read_csv(path, separator=" ", schema=schema, has_header=False)
 
     # partition based on which one should be increasing
@@ -56,7 +56,9 @@ if __name__ == "__main__":
 
     print(f"day 2.1 solution (polars): {len(increasing_df) + len(decreasing_df)}")
 
-    # day 2.2
+
+def part2(path: Path) -> None:
+    lines = path.read_text().splitlines()
     num_safe = 0
     for line in lines:
         report = list(map(int, line.split()))
@@ -70,3 +72,10 @@ if __name__ == "__main__":
                     break
 
     print(f"day 2.2 solution: {num_safe}")
+
+
+if __name__ == "__main__":
+    path = Path("inputs/day2.txt")
+    part1(path)
+    part1_polars(path)
+    part2(path)
